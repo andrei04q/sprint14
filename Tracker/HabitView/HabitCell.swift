@@ -1,102 +1,114 @@
 import UIKit
 
 final class HabitViewCell: UITableViewCell {
-    
-    static let reuseIdentifier: String = "HabitViewCell"
-    
+
+    static let reuseIdentifier = "HabitViewCell"
+
+    // MARK: - UI
+
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = UIFont(name: TrackerFont.regular.rawValue, size: 17)
+        label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         label.textColor = .ypBlack
         return label
     }()
-    
-    private let bottomDivider: UIView = {
-        let view = UIView()
-        view.backgroundColor = .nameTrackerText
-        return view
+
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 15, weight: .regular)
+        label.textColor = .nameTrackerText
+        label.numberOfLines = 1
+        return label
     }()
-    
-    private let customAccessoryImage: UIImageView = {
+
+    private let arrowImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage(resource: .accessoryType)
         imageView.tintColor = .nameTrackerText
         imageView.contentMode = .scaleAspectFit
-        imageView.clipsToBounds = true
         return imageView
     }()
-    
-    private let subtitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont(name: TrackerFont.regular.rawValue, size: 17)
-        label.textColor = .nameTrackerText
-        label.numberOfLines = 2
-        return label
+
+    private let divider: UIView = {
+        let view = UIView()
+        view.backgroundColor = UIColor.ypBlack.withAlphaComponent(0.1)
+        return view
     }()
-    
-    private let verticalStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.alignment = .leading
-        stack.distribution = .equalSpacing
-        stack.spacing = 2
-        return stack
+
+    private let stack: UIStackView = {
+        let s = UIStackView()
+        s.axis = .vertical
+        s.spacing = 2
+        s.alignment = .leading
+        return s
     }()
-    
+
+    // MARK: - Init
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        
-        addTableViewCell()
+        setup()
     }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    private func addTableViewCell() {
-        
-        backgroundColor = .clear
-        contentView.layer.masksToBounds = true
 
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+
+    // MARK: - Setup
+
+    private func setup() {
+        backgroundColor = .clear
+        contentView.backgroundColor = .clear
         selectionStyle = .none
-        
-        contentView.addSubview(bottomDivider)
-        contentView.addSubview(customAccessoryImage)
-        
-        contentView.addSubview(verticalStackView)
-        
-        verticalStackView.addArrangedSubview(titleLabel)
-        verticalStackView.addArrangedSubview(subtitleLabel)
-        
-        bottomDivider.translatesAutoresizingMaskIntoConstraints = false
-        customAccessoryImage.translatesAutoresizingMaskIntoConstraints = false
-        
-        verticalStackView.translatesAutoresizingMaskIntoConstraints = false
-        
+
+        contentView.addSubview(stack)
+        contentView.addSubview(arrowImageView)
+        contentView.addSubview(divider)
+
+        stack.addArrangedSubview(titleLabel)
+        stack.addArrangedSubview(subtitleLabel)
+
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        arrowImageView.translatesAutoresizingMaskIntoConstraints = false
+        divider.translatesAutoresizingMaskIntoConstraints = false
+
         NSLayoutConstraint.activate([
-            customAccessoryImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            customAccessoryImage.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            customAccessoryImage.widthAnchor.constraint(equalToConstant: 24),
-            customAccessoryImage.heightAnchor.constraint(equalToConstant: 24),
-            
-            bottomDivider.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -16),
-            bottomDivider.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
-            bottomDivider.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            bottomDivider.heightAnchor.constraint(equalToConstant: 0.5),
-            
-            verticalStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            verticalStackView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            verticalStackView.trailingAnchor.constraint(
-                lessThanOrEqualTo: customAccessoryImage.leadingAnchor,
-                constant: -8),
+
+            // stack
+            stack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            stack.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+
+            // arrow
+            arrowImageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            arrowImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            arrowImageView.widthAnchor.constraint(equalToConstant: 24),
+            arrowImageView.heightAnchor.constraint(equalToConstant: 24),
+
+            stack.trailingAnchor.constraint(
+                lessThanOrEqualTo: arrowImageView.leadingAnchor,
+                constant: -8
+            ),
+
+            // divider
+            divider.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            divider.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            divider.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
+            divider.heightAnchor.constraint(equalToConstant: 0.5)
         ])
     }
-    
+
+    // MARK: - Configure
+
     func configure(title: String, subtitle: String?, showDivider: Bool) {
         titleLabel.text = title
-        subtitleLabel.text = subtitle
-        subtitleLabel.isHidden = subtitle == nil
-        bottomDivider.isHidden = !showDivider
+
+        if let subtitle, !subtitle.isEmpty {
+            subtitleLabel.text = subtitle
+            subtitleLabel.isHidden = false
+        } else {
+            subtitleLabel.isHidden = true
+        }
+
+        divider.isHidden = !showDivider
     }
 }
-
